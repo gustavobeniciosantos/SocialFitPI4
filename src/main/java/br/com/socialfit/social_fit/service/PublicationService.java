@@ -1,9 +1,9 @@
 package br.com.socialfit.social_fit.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import br.com.socialfit.social_fit.entity.Publication;
 import br.com.socialfit.social_fit.repositories.PublicationRepository;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

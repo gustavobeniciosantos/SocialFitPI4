@@ -1,6 +1,7 @@
 package br.com.socialfit.social_fit.service;
 
 import br.com.socialfit.social_fit.entity.User;
+import br.com.socialfit.social_fit.exeption.UserFoundExeption;
 import br.com.socialfit.social_fit.repositories.UserRepository;
 import jakarta.mail.MessagingException;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class UserService {
     @Autowired
     private EmailService emailService;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -27,14 +29,19 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public User saveUser(@NotNull User user) {
+    public void createUser(@NotNull User user) {
+
+        this.userRepository.findByUsernameOrEmailOrCPF(user.getUsername(), user.getEmail(), user.getCPF()).ifPresent((users) -> {
+            throw new UserFoundExeption();
+        });
         try {
             emailService.sendMailConfirm(user.getEmail());
         } catch (MessagingException | IOException e) {
             e.printStackTrace();
         }
-        return userRepository.save(user);
+        this.userRepository.save(user);
     }
+
 
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);

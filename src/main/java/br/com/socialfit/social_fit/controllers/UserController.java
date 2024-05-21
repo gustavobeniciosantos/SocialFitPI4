@@ -5,6 +5,7 @@ import br.com.socialfit.social_fit.service.*;
 import com.fasterxml.jackson.annotation.JsonView;
 import br.com.socialfit.social_fit.entity.User;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,32 +13,40 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-
+import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 
 @Controller
-@RequestMapping("/teste")
+@RequestMapping("/")
 public class UserController {
 
+
     private LoginUserService loginUserService;
-    @Autowired
-    private UserService userService;
+
 
     GetUserService getUserService;
+
     GenerateCode generateCode;
     EmailService emailService;
     AuthCodeService authCodeService = new AuthCodeService();
+    @Autowired
+    private UserService userService;
 
 
     @JsonView(User.WithoutPasswordView.class)
     @PostMapping("/signup")
-    public User createUser(@RequestBody User user) {
-        return userService.saveUser(user);
-    }//cadastrar
+    public ResponseEntity<Object> createUser(@RequestBody @Valid User user ){
+
+        try {
+           this.userService.createUser(user);
+           return ResponseEntity.created(URI.create("/"+user.getId())).body(user);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }//registrar
 
     @PostMapping("/signin")
     public ResponseEntity<Object> login(@RequestBody User user)  {
@@ -58,11 +67,17 @@ public class UserController {
                 e.printStackTrace();
             }
 
-            return ResponseEntity.ok().body(user);
+            return ResponseEntity.ok().body(user.getId());
         } else {
             return ResponseEntity.badRequest().body("Username or Passsword invalid");
         }
 
+    }
+
+    @RequestMapping("/signin/auth")
+    public String authScreen(){
+        generateCode.generateNewCode();
+        return "authCode";
     }
 
     @PostMapping("/signin/verify")
@@ -70,11 +85,12 @@ public class UserController {
 
         if(authCodeService.isHim(GenerateCode.generatedCode(),verificationCode.getCode())){
 
-            return ResponseEntity.ok().body("Corrigo correto");
+            return ResponseEntity.ok().body("Código correto");
+        } else {
+            return ResponseEntity.badRequest().body("Código incorreto");
         }
-
-        return ResponseEntity.badRequest().body("Código incorreto");
     }
+
 
     @GetMapping("/user/{username}")
     public ResponseEntity<Object> getUser(@PathVariable String username){
@@ -86,14 +102,6 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-    }
-    @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
-    }
-    @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable UUID id) {
-    userService.deleteUser(id);
     }
 
 

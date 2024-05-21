@@ -1,14 +1,13 @@
 package br.com.socialfit.social_fit.service;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import br.com.socialfit.social_fit.entity.PublicationLike;
+import br.com.socialfit.social_fit.repositories.PublicationLikeRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import br.com.socialfit.social_fit.repositories.PublicationLikeRepository;
-import br.com.socialfit.social_fit.entity.PublicationLike;
 
 @Service
 public class PublicationLikeService {

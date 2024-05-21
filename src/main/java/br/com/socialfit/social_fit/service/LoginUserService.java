@@ -17,7 +17,7 @@ public class LoginUserService {
     public Optional<User> loginUser(String username, String password){
 
         return userRepository.findUserByUsernameAndPassword(username, password);
-    }
+  }
 
 
 }
