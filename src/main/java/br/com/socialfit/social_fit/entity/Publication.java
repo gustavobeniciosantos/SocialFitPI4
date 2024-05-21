@@ -3,18 +3,17 @@ package br.com.socialfit.social_fit.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import org.hibernate.validator.constraints.UUID;
+import java.util.UUID;
+
 @Data
 @Entity
 @Table(name = "publication_table")
 public class Publication {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "userID", nullable = false)
-    private User user;
+    private String userName;
 
     private String publicationText;
 }
