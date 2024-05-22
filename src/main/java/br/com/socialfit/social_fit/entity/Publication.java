@@ -26,4 +26,6 @@ public class Publication {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userid", nullable = false)
     private User user;
+
+    private int likesCount = 0;
 }

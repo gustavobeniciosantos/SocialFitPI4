@@ -1,5 +1,6 @@
 package br.com.socialfit.social_fit.controllers;
 
+import br.com.socialfit.social_fit.DTO.PublicationDTO;
 import br.com.socialfit.social_fit.entity.Publication;
 import br.com.socialfit.social_fit.entity.User;
 import br.com.socialfit.social_fit.service.PublicationService;
@@ -8,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/publications")
@@ -44,14 +47,29 @@ public class PublicationController {
     }
 
     @GetMapping("/friendsPublications")
-    public ResponseEntity<List<Publication>> getAllFriendPublications(HttpSession session) {
-        List<Publication> friendPublications = publicationService.getAllFriendPublications(session);
+    public ResponseEntity<List<PublicationDTO>> getAllFriendPublications(HttpSession session) {
+        List<PublicationDTO> friendPublications = publicationService.getAllFriendPublications(session)
+                .stream()
+                .map(publication -> {
+                    PublicationDTO dto = new PublicationDTO();
+                    dto.setId(publication.getId());
+                    dto.setPublicationText(publication.getPublicationText());
+                    dto.setUserName(publication.getUser().getUsername());
+                    dto.setLikes(publication.getLikesCount());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        Collections.shuffle(friendPublications);
         return ResponseEntity.ok(friendPublications);
     }
+
 
 
     @DeleteMapping("/{id}")
     public void deletePublication(@PathVariable UUID id) {
         publicationService.deletePublication(id);
+    }
+
+    public void savePublication(Publication publication) {
     }
 }

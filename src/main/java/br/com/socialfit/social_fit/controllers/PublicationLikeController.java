@@ -8,12 +8,10 @@ import br.com.socialfit.social_fit.service.PublicationLikeService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/publication-likes")
@@ -36,7 +34,7 @@ public class PublicationLikeController {
     }
 
     @PostMapping("/like-publication/{publicationId}")
-    public PublicationLike likePublication(@PathVariable UUID publicationId, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> likePublication(@PathVariable UUID publicationId, HttpSession session) {
         User user = (User) session.getAttribute("user");
 
         if (user == null) {
@@ -54,11 +52,18 @@ public class PublicationLikeController {
         publicationLike.setUser(user);
         publicationLike.setPublication(publication);
 
-        return publicationLikeService.savePublicationLike(publicationLike);
+        publication.setLikesCount(publication.getLikesCount() + 1);
+
+        publicationService.savePublication(publication);
+
+        PublicationLike savedLike = publicationLikeService.savePublicationLike(publicationLike);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", savedLike.getId());
+        response.put("message", "Like realizado com sucesso");
+
+        return ResponseEntity.ok(response);
     }
-
-
-
 
 
     @DeleteMapping("/{id}")
