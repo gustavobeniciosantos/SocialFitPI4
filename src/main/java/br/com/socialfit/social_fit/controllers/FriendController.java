@@ -8,6 +8,7 @@ import br.com.socialfit.social_fit.repositories.UserRepository;
 import br.com.socialfit.social_fit.service.FriendService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +26,16 @@ public class FriendController {
     private UserRepository userRepository;
     @Autowired
     FriendRepository friendRepository;
-    @GetMapping
-    public List<Friend> getAllFriends() {
-        return friendService.getAllFriends();
+    @GetMapping("/getFriends")
+    public ResponseEntity<Object> getAllFriends(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não está logado");
+        }
+
+        List<String> friendNames = friendService.getFriendNamesOfUser(user);
+        return ResponseEntity.ok().body(friendNames);
     }
 
     @GetMapping("/{id}")
@@ -52,6 +60,10 @@ public class FriendController {
             return ResponseEntity.badRequest().body("Esses usuários já são amigos.");
         }
 
+        if (currentUser.getId().equals(friendUser.getId())) {
+            return ResponseEntity.badRequest().body("Você não pode se adicionar como amigo.");
+        }
+
         Friend friend = new Friend();
         friend.setUser1(currentUser);
         friend.setUser2(friendUser);
@@ -62,7 +74,6 @@ public class FriendController {
 
         return ResponseEntity.ok().body(message);
     }
-
     @DeleteMapping("/{id}")
     public void deleteFriend(@PathVariable UUID id) {
         friendService.deleteFriend(id);

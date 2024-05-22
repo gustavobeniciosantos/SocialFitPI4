@@ -1,6 +1,7 @@
 package br.com.socialfit.social_fit.repositories;
 
 import br.com.socialfit.social_fit.entity.Publication;
+import br.com.socialfit.social_fit.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,6 @@ public interface PublicationRepository extends JpaRepository<Publication,UUID> {
     Publication save(Publication publication);
 
     void deleteById(UUID id);
+
+    List<Publication> findByUser(User user);
 }

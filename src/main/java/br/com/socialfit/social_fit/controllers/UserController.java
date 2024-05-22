@@ -40,7 +40,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
     @PostMapping("/signin")
     public ResponseEntity<Object> login(@RequestBody User user, HttpSession session)  {
 
@@ -57,7 +56,6 @@ public class UserController {
             return ResponseEntity.badRequest().body("Username or Passsword invalid");
         }
     }
-
     @GetMapping("/user/{username}")
     public ResponseEntity<Object> getUser(@PathVariable String username){
         Optional<User> userOptional = userService.getUserRepository(username);
@@ -69,6 +67,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
     }
-
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok().build();
+    }
 
 }
+

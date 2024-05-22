@@ -5,6 +5,7 @@ import br.com.socialfit.social_fit.entity.User;
 import br.com.socialfit.social_fit.service.PublicationService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +42,13 @@ public class PublicationController {
 
         return publicationService.savePublication(publication);
     }
+
+    @GetMapping("/friendsPublications")
+    public ResponseEntity<List<Publication>> getAllFriendPublications(HttpSession session) {
+        List<Publication> friendPublications = publicationService.getAllFriendPublications(session);
+        return ResponseEntity.ok(friendPublications);
+    }
+
 
     @DeleteMapping("/{id}")
     public void deletePublication(@PathVariable UUID id) {
