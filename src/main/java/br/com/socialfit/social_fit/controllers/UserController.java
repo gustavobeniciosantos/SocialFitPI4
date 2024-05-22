@@ -1,6 +1,7 @@
 package br.com.socialfit.social_fit.controllers;
 
 
+import br.com.socialfit.social_fit.repositories.UserRepository;
 import br.com.socialfit.social_fit.service.*;
 import com.fasterxml.jackson.annotation.JsonView;
 import br.com.socialfit.social_fit.entity.User;
@@ -18,24 +19,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 
-
-
 @Controller
 @RequestMapping("/")
 public class UserController {
 
     @Autowired
-    private LoginUserService loginUserService;
-    @Autowired
-    GetUserService getUserService;
-    @Autowired
-    GenerateCode generateCode;
-    @Autowired
-    EmailService emailService;
-    @Autowired
-    AuthCodeService authCodeService = new AuthCodeService();
-    @Autowired
     private UserService userService;
+    @Autowired
+    UserRepository userRepository;
 
 
     @JsonView(User.WithoutPasswordView.class)
@@ -48,26 +39,16 @@ public class UserController {
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-    }//registrar
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<Object> login(@RequestBody User user, HttpSession session)  {
 
-        Optional<User> foundUser = loginUserService.loginUser(user.getUsername(), user.getPassword());
+        Optional<User> foundUser = userService.loginUser(user.getUsername(), user.getPassword());
 
         if (foundUser.isPresent()) {
             user = foundUser.get();
-            String email = user.getEmail();
             String name = user.getName();
-            generateCode.generateNewCode();
-            try {
-                ModelAndView modelAndView = new ModelAndView("sendCode");
-                modelAndView.addObject("name", name);
-                modelAndView.addObject("code", GenerateCode.generatedCode());
-                emailService.sendMailAuth(email, name, GenerateCode.generatedCode());
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            }
 
             session.setAttribute("user", user);
 
@@ -75,30 +56,11 @@ public class UserController {
         } else {
             return ResponseEntity.badRequest().body("Username or Passsword invalid");
         }
-
     }
-
-    @RequestMapping("/signin/auth")
-    public String authScreen(){
-        generateCode.generateNewCode();
-        return "authCode";
-    }
-
-    @PostMapping("/signin/verify")
-    public ResponseEntity<Object> authCode(@RequestBody VerificationCode verificationCode){
-
-        if(authCodeService.isHim(GenerateCode.generatedCode(),verificationCode.getCode())){
-
-            return ResponseEntity.ok().body("Código correto");
-        } else {
-            return ResponseEntity.badRequest().body("Código incorreto");
-        }
-    }
-
 
     @GetMapping("/user/{username}")
     public ResponseEntity<Object> getUser(@PathVariable String username){
-        Optional<User> userOptional = getUserService.getUserRepository(username);
+        Optional<User> userOptional = userService.getUserRepository(username);
 
         if(userOptional.isPresent()){
             User user = userOptional.get();

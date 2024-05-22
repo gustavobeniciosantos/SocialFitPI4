@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -34,12 +35,15 @@ public class UserService {
         this.userRepository.findByUsernameOrEmailOrCPF(user.getUsername(), user.getEmail(), user.getCPF()).ifPresent((users) -> {
             throw new UserFoundExeption();
         });
-        try {
-            emailService.sendMailConfirm(user.getEmail());
-        } catch (MessagingException | IOException e) {
-            e.printStackTrace();
-        }
+
         this.userRepository.save(user);
+    }
+    public Optional<User> getUserRepository(String username){
+        return userRepository.findUserByUsername(username);
+    }
+    public Optional<User> loginUser(String username, String password){
+
+        return userRepository.findUserByUsernameAndPassword(username, password);
     }
 
 

@@ -34,7 +34,7 @@ public class PublicationLikeController {
         if (user == null) {
             throw new IllegalStateException("Usuário não está logado");
         }
-        
+
         publicationLike.setUser(user);
 
         return publicationLikeService.savePublicationLike(publicationLike);
