@@ -5,6 +5,7 @@ import br.com.socialfit.social_fit.service.*;
 import com.fasterxml.jackson.annotation.JsonView;
 import br.com.socialfit.social_fit.entity.User;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,14 +24,15 @@ import java.util.Optional;
 @RequestMapping("/")
 public class UserController {
 
-
+    @Autowired
     private LoginUserService loginUserService;
-
-
+    @Autowired
     GetUserService getUserService;
-
+    @Autowired
     GenerateCode generateCode;
+    @Autowired
     EmailService emailService;
+    @Autowired
     AuthCodeService authCodeService = new AuthCodeService();
     @Autowired
     private UserService userService;
@@ -49,7 +51,7 @@ public class UserController {
     }//registrar
 
     @PostMapping("/signin")
-    public ResponseEntity<Object> login(@RequestBody User user)  {
+    public ResponseEntity<Object> login(@RequestBody User user, HttpSession session)  {
 
         Optional<User> foundUser = loginUserService.loginUser(user.getUsername(), user.getPassword());
 
@@ -66,6 +68,8 @@ public class UserController {
             } catch (MessagingException e) {
                 e.printStackTrace();
             }
+
+            session.setAttribute("user", user);
 
             return ResponseEntity.ok().body(user.getId());
         } else {

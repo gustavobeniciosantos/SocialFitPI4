@@ -1,7 +1,9 @@
 package br.com.socialfit.social_fit.controllers;
 
 import br.com.socialfit.social_fit.entity.Publication;
+import br.com.socialfit.social_fit.entity.User;
 import br.com.socialfit.social_fit.service.PublicationService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +14,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/publications")
 public class PublicationController {
+
     @Autowired
     private PublicationService publicationService;
 
-    @GetMapping
+    @GetMapping("/list-publications")
     public List<Publication> getAllPublications() {
         return publicationService.getAllPublications();
     }
@@ -26,7 +29,16 @@ public class PublicationController {
     }
 
     @PostMapping("/create-post")
-    public Publication createPublication(@RequestBody Publication publication) {
+    public Publication createPublication(@RequestBody Publication publication, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            throw new IllegalStateException("Usuário não está logado");
+        }
+
+        publication.setUser(user);
+        publication.setUserName(user.getUsername());
+
         return publicationService.savePublication(publication);
     }
 
