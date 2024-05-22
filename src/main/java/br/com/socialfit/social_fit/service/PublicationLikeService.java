@@ -3,6 +3,7 @@ package br.com.socialfit.social_fit.service;
 
 import br.com.socialfit.social_fit.entity.PublicationLike;
 import br.com.socialfit.social_fit.repositories.PublicationLikeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Service
 public class PublicationLikeService {
 
+    @Autowired
     private PublicationLikeRepository publicationLikeRepository;
 
     public List<PublicationLike> getAllPublicationLikes() {
