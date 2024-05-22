@@ -1,7 +1,9 @@
 package br.com.socialfit.social_fit.controllers;
 
 import br.com.socialfit.social_fit.entity.PublicationLike;
+import br.com.socialfit.social_fit.entity.User;
 import br.com.socialfit.social_fit.service.PublicationLikeService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +28,15 @@ public class PublicationLikeController {
     }
 
     @PostMapping("/insert-like-publication")
-    public PublicationLike createPublicationLike(@RequestBody PublicationLike publicationLike) {
+    public PublicationLike createPublicationLike(@RequestBody PublicationLike publicationLike, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            throw new IllegalStateException("Usuário não está logado");
+        }
+        
+        publicationLike.setUser(user);
+
         return publicationLikeService.savePublicationLike(publicationLike);
     }
 
