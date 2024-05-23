@@ -23,11 +23,9 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-
     public User getUserById(UUID id) {
         return userRepository.findById(id).orElse(null);
     }
-
     public void createUser(@NotNull User user) {
 
         this.userRepository.findByUsernameOrEmailOrCPF(user.getUsername(), user.getEmail(), user.getCPF()).ifPresent((users) -> {
