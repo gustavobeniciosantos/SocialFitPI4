@@ -28,7 +28,6 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
-
     @JsonView(User.WithoutPasswordView.class)
     @PostMapping("/signup")
     public ResponseEntity<Object> createUser(@RequestBody @Valid User user ){
@@ -68,9 +67,9 @@ public class UserController {
         }
     }
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpSession session) {
+    public ResponseEntity<String> logout(HttpSession session, User user) {
         session.invalidate();
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("Usuário deslogado");
     }
 
 }
