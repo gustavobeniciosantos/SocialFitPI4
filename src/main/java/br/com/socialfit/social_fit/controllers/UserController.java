@@ -1,6 +1,7 @@
 package br.com.socialfit.social_fit.controllers;
 
 
+import br.com.socialfit.social_fit.DTO.UserDTO;
 import br.com.socialfit.social_fit.repositories.UserRepository;
 import br.com.socialfit.social_fit.service.*;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -42,8 +43,7 @@ public class UserController {
         }
     }
     @PostMapping("/signin")
-    public ResponseEntity<Object> login(@RequestBody User user, HttpSession session)  {
-
+    public ResponseEntity<UserDTO> login(@RequestBody User user, HttpSession session)  {
         Optional<User> foundUser = userService.loginUser(user.getUsername(), user.getPassword());
 
         if (foundUser.isPresent()) {
@@ -52,9 +52,15 @@ public class UserController {
 
             session.setAttribute("user", user);
 
-            return ResponseEntity.ok().body(user.getId());
+            // Criar um objeto UserDTO com os dados do usuário
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(user.getId());
+            userDTO.setName(user.getName());
+            userDTO.setUsername(user.getUsername());
+
+            return ResponseEntity.ok().body(userDTO);
         } else {
-            return ResponseEntity.badRequest().body("Username or Passsword invalid");
+            return ResponseEntity.badRequest().build();
         }
     }
     @GetMapping("/user/{username}")
