@@ -18,5 +18,4 @@ public interface FriendRepository extends JpaRepository<Friend,UUID>{
     List<Friend> findAllByUser1(User user);
     List<Friend> findAllByUser2(User user);
     List<Friend> findFriendsByUser1OrUser2(User user1, User user2);
-
 }

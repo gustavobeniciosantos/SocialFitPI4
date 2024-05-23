@@ -44,10 +44,12 @@ public class FriendController {
     }
 
     @PostMapping("/addFriend")
-    public ResponseEntity<Object> addFriend(@RequestParam("friendId") UUID friendId, HttpSession session) {
+    public ResponseEntity<Object> addFriend(@RequestBody Map<String, String> requestBody, HttpSession session) {
+        String username = requestBody.get("username");
+
         User currentUser = (User) session.getAttribute("user");
 
-        User friendUser = userRepository.findById(friendId).orElse(null);
+        User friendUser = userRepository.findByUsername(username);
 
         if (friendUser == null) {
             return ResponseEntity.notFound().build();
@@ -58,20 +60,17 @@ public class FriendController {
             return ResponseEntity.badRequest().body("Esses usuários já são amigos.");
         }
 
-        if (currentUser.getId().equals(friendUser.getId())) {
-            return ResponseEntity.badRequest().body("Você não pode se adicionar como amigo.");
-        }
-
         Friend friend = new Friend();
         friend.setUser1(currentUser);
         friend.setUser2(friendUser);
-
         friendRepository.save(friend);
 
-        String message = String.format("Você adicionou o usuário %s (ID: %s) como amigo.", friendUser.getName(), friendUser.getId());
+
+        String message = String.format("Você adicionou um novo amigo", friendUser.getName(), friendUser.getId());
 
         return ResponseEntity.ok().body(message);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteFriend(@PathVariable UUID id) {

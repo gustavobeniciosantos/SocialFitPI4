@@ -39,4 +39,6 @@ public class FriendService {
     public void deleteFriend(UUID id) {
         friendRepository.deleteById(id);
     }
+
+
 }
