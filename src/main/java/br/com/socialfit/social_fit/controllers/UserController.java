@@ -73,7 +73,6 @@ public class UserController {
         session.invalidate();
         return ResponseEntity.ok().body("Usuário deslogado");
     }
-
     @PatchMapping("/user/changeData")
     public ResponseEntity<Object> updateUserData(@RequestBody Map<String, String> updates, HttpSession session){
 
@@ -100,10 +99,15 @@ public class UserController {
         return ResponseEntity.ok().body("Dados alterados");
 
     }
-
     @GetMapping("/getAllUsers")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/getAllUsersByName/{name}")
+    public ResponseEntity<List<User>> getAllUsersByName(@PathVariable String name){
+        List<User> users = userRepository.findAllByName(name);
         return ResponseEntity.ok(users);
     }
 
