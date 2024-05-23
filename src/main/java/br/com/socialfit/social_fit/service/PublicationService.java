@@ -1,6 +1,7 @@
 package br.com.socialfit.social_fit.service;
 
 import br.com.socialfit.social_fit.DTO.PublicationDTO;
+import br.com.socialfit.social_fit.DTO.UserDTO;
 import br.com.socialfit.social_fit.entity.Friend;
 import br.com.socialfit.social_fit.entity.Publication;
 import br.com.socialfit.social_fit.entity.User;
@@ -26,13 +27,15 @@ public class PublicationService {
     private UserRepository userRepository;
     @Autowired
     FriendRepository friendRepository;
+    @Autowired
+    UserService userService;
 
     public List<Publication> getAllPublications() {
         return publicationRepository.findAll();
     }
 
-    public List<Publication> getAllFriendPublications(HttpSession session){
-        User currentUser = (User) session.getAttribute("user");
+    public List<Publication> getAllFriendPublications(UserDTO userDTO){
+        User currentUser = userService.findById(userDTO.getId()).orElse(null);
 
         List<Friend> friends = friendRepository.findFriendsByUser1OrUser2(currentUser, currentUser);
 
@@ -45,6 +48,7 @@ public class PublicationService {
 
         return allFriendPublications;
     }
+
 
 
     public Optional<Publication> getPublicationById(UUID id) {

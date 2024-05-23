@@ -41,7 +41,9 @@ public class UserService {
 
         return userRepository.findUserByUsernameAndPassword(username, password);
     }
-
+    public Optional<User> findById(UUID id) {
+        return userRepository.findById(id);
+    }
 
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);

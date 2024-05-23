@@ -47,22 +47,22 @@ public class UserController {
         Optional<User> foundUser = userService.loginUser(user.getUsername(), user.getPassword());
 
         if (foundUser.isPresent()) {
-            user = foundUser.get();
-            String name = user.getName();
-
-            session.setAttribute("user", user);
+            User currentUser = userService.getUserById(foundUser.get().getId());
 
             // Criar um objeto UserDTO com os dados do usuário
             UserDTO userDTO = new UserDTO();
-            userDTO.setId(user.getId());
-            userDTO.setName(user.getName());
-            userDTO.setUsername(user.getUsername());
+            userDTO.setId(currentUser.getId());
+            userDTO.setName(currentUser.getName());
+            userDTO.setUsername(currentUser.getUsername());
+
+            session.setAttribute("user", userDTO);
 
             return ResponseEntity.ok().body(userDTO);
         } else {
             return ResponseEntity.badRequest().build();
         }
     }
+
     @GetMapping("/user/{username}")
     public ResponseEntity<Object> getUser(@PathVariable String username){
         Optional<User> userOptional = userService.getUserRepository(username);

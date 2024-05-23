@@ -2,6 +2,7 @@ package br.com.socialfit.social_fit.controllers;
 
 import br.com.socialfit.social_fit.DTO.PublicationDTO;
 import br.com.socialfit.social_fit.DTO.PublicationResponseDTO;
+import br.com.socialfit.social_fit.DTO.UserDTO;
 import br.com.socialfit.social_fit.entity.Publication;
 import br.com.socialfit.social_fit.entity.User;
 import br.com.socialfit.social_fit.service.PublicationService;
@@ -53,8 +54,8 @@ public class PublicationController {
     }
 
     @GetMapping("/friendsPublications")
-    public ResponseEntity<List<PublicationDTO>> getAllFriendPublications(HttpSession session) {
-        List<PublicationDTO> friendPublications = publicationService.getAllFriendPublications(session)
+    public ResponseEntity<List<PublicationDTO>> getAllFriendPublications(@RequestBody UserDTO userDTO) {
+        List<PublicationDTO> friendPublications = publicationService.getAllFriendPublications(userDTO)
                 .stream()
                 .map(publication -> {
                     PublicationDTO dto = new PublicationDTO();
@@ -69,6 +70,7 @@ public class PublicationController {
         Collections.shuffle(friendPublications);
         return ResponseEntity.ok(friendPublications);
     }
+
 
     @GetMapping("/user")
     public ResponseEntity<List<PublicationDTO>> getUserPublications(HttpSession session){
