@@ -54,6 +54,7 @@ public class PublicationController {
                     PublicationDTO dto = new PublicationDTO();
                     dto.setId(publication.getId());
                     dto.setPublicationText(publication.getPublicationText());
+                    dto.setName(publication.getUser().getName());
                     dto.setUserName(publication.getUser().getUsername());
                     dto.setLikes(publication.getLikesCount());
                     return dto;
