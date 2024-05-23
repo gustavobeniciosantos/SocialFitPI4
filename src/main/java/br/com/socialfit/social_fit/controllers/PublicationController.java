@@ -1,6 +1,7 @@
 package br.com.socialfit.social_fit.controllers;
 
 import br.com.socialfit.social_fit.DTO.PublicationDTO;
+import br.com.socialfit.social_fit.DTO.PublicationResponseDTO;
 import br.com.socialfit.social_fit.entity.Publication;
 import br.com.socialfit.social_fit.entity.User;
 import br.com.socialfit.social_fit.service.PublicationService;
@@ -22,18 +23,16 @@ public class PublicationController {
     @Autowired
     private PublicationService publicationService;
 
-    @GetMapping("/list-publications")
+    @GetMapping("/listPublications")
     public List<Publication> getAllPublications() {
         return publicationService.getAllPublications();
     }
-
     @GetMapping("/{id}")
     public Optional<Publication> getPublicationById(@PathVariable UUID id) {
         return publicationService.getPublicationById(id);
     }
-
-    @PostMapping("/create-post")
-    public Publication createPublication(@RequestBody Publication publication, HttpSession session) {
+    @PostMapping("/createPost")
+    public PublicationResponseDTO createPublication(@RequestBody Publication publication, HttpSession session) {
         User user = (User) session.getAttribute("user");
 
         if (user == null) {
@@ -43,7 +42,14 @@ public class PublicationController {
         publication.setUser(user);
         publication.setUserName(user.getUsername());
 
-        return publicationService.savePublication(publication);
+        Publication savedPublication = publicationService.savePublication(publication);
+
+        PublicationResponseDTO responseDTO = new PublicationResponseDTO();
+        responseDTO.setId(savedPublication.getId());
+        responseDTO.setPublicationText(savedPublication.getPublicationText());
+        responseDTO.setUserName(savedPublication.getUserName());
+
+        return responseDTO;
     }
 
     @GetMapping("/friendsPublications")
@@ -64,7 +70,12 @@ public class PublicationController {
         return ResponseEntity.ok(friendPublications);
     }
 
-
+    @GetMapping("/user")
+    public ResponseEntity<List<PublicationDTO>> getUserPublications(HttpSession session){
+        User currentUser = (User) session.getAttribute("user");
+        List<PublicationDTO> userPublications = publicationService.getAllUserPublications(currentUser);
+        return ResponseEntity.ok(userPublications);
+    }
 
     @DeleteMapping("/{id}")
     public void deletePublication(@PathVariable UUID id) {

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/publication-likes")
+@RequestMapping("/publicationLikes")
 public class PublicationLikeController {
     @Autowired
     private PublicationLikeService publicationLikeService;
@@ -23,7 +23,7 @@ public class PublicationLikeController {
     @Autowired
     PublicationController publicationService;
 
-    @GetMapping("/get-all-publications")
+    @GetMapping("/getAllPublications")
     public List<PublicationLike> getAllPublicationLikes() {
         return publicationLikeService.getAllPublicationLikes();
     }
@@ -33,7 +33,7 @@ public class PublicationLikeController {
         return publicationLikeService.getPublicationLikeById(id);
     }
 
-    @PostMapping("/like-publication/{publicationId}")
+    @PostMapping("/likePublication/{publicationId}")
     public ResponseEntity<Map<String, Object>> likePublication(@PathVariable UUID publicationId, HttpSession session) {
         User user = (User) session.getAttribute("user");
 

@@ -104,7 +104,6 @@ public class UserController {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
-
     @GetMapping("/getAllUsersByName/{name}")
     public ResponseEntity<List<User>> getAllUsersByName(@PathVariable String name){
         List<User> users = userRepository.findAllByName(name);

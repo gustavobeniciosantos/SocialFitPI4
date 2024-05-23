@@ -1,5 +1,6 @@
 package br.com.socialfit.social_fit.service;
 
+import br.com.socialfit.social_fit.DTO.PublicationDTO;
 import br.com.socialfit.social_fit.entity.Friend;
 import br.com.socialfit.social_fit.entity.Publication;
 import br.com.socialfit.social_fit.entity.User;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PublicationService {
@@ -32,10 +34,8 @@ public class PublicationService {
     public List<Publication> getAllFriendPublications(HttpSession session){
         User currentUser = (User) session.getAttribute("user");
 
-        // Obter a lista de amigos do usuário atual
         List<Friend> friends = friendRepository.findFriendsByUser1OrUser2(currentUser, currentUser);
 
-        // Obter todas as publicações dos amigos
         List<Publication> allFriendPublications = new ArrayList<>();
         for (Friend friend : friends) {
             User friendUser = friend.getUser1().equals(currentUser) ? friend.getUser2() : friend.getUser1();
@@ -57,5 +57,21 @@ public class PublicationService {
 
     public void deletePublication(UUID id) {
         publicationRepository.deleteById(id);
+    }
+
+    public List<PublicationDTO> getAllUserPublications(User user) {
+        List<Publication> publications = publicationRepository.findByUser(user);
+        List<PublicationDTO> publicationDTOs = publications.stream()
+                .map(publication -> {
+                    PublicationDTO dto = new PublicationDTO();
+                    dto.setId(publication.getId());
+                    dto.setName(user.getName());
+                    dto.setPublicationText(publication.getPublicationText());
+                    dto.setUserName(user.getUsername());
+                    dto.setLikes(publication.getLikesCount());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return publicationDTOs;
     }
 }
