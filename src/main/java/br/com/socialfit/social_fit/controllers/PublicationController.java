@@ -53,8 +53,11 @@ public class PublicationController {
         return responseDTO;
     }
 
-    @GetMapping("/friendsPublications")
-    public ResponseEntity<List<PublicationDTO>> getAllFriendPublications(@RequestBody UserDTO userDTO) {
+    @GetMapping("/friendsPublications/{id}")
+    public ResponseEntity<List<PublicationDTO>> getAllFriendPublications(@PathVariable UUID id) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(id);
+
         List<PublicationDTO> friendPublications = publicationService.getAllFriendPublications(userDTO)
                 .stream()
                 .map(publication -> {
@@ -70,6 +73,7 @@ public class PublicationController {
         Collections.shuffle(friendPublications);
         return ResponseEntity.ok(friendPublications);
     }
+
 
 
     @GetMapping("/user")
