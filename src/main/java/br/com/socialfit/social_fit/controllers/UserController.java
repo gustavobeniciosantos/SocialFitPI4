@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/")
@@ -79,32 +80,29 @@ public class UserController {
         session.invalidate();
         return ResponseEntity.ok().body("Usuário deslogado");
     }
-    @PatchMapping("/user/changeData")
-    public ResponseEntity<Object> updateUserData(@RequestBody Map<String, String> updates, HttpSession session){
+    @PatchMapping("/user/changeData/{userId}")
+    public ResponseEntity<Object> updateUserData(@PathVariable UUID userId, @RequestBody Map<String, String> updates){
 
-       User user = (User) session.getAttribute("user");
-
-        if (user == null) {
-            throw new IllegalStateException("Usuário não está logado");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
 
         if (updates.containsKey("email") && updates.get("email") != null) {
-            user.setEmail((String) updates.get("email"));
+            user.setEmail(updates.get("email"));
         }
         if (updates.containsKey("password") && updates.get("password") != null) {
-            user.setPassword((String) updates.get("password"));
+            user.setPassword(updates.get("password"));
         }
         if (updates.containsKey("telephone") && updates.get("telephone") != null) {
-            user.setTelephone((String) updates.get("telephone"));
+            user.setTelephone(updates.get("telephone"));
         }
         if (updates.containsKey("fullAddress") && updates.get("fullAddress") != null) {
-            user.setFullAddress((String) updates.get("fullAddress"));
+            user.setFullAddress(updates.get("fullAddress"));
         }
 
         userRepository.save(user);
         return ResponseEntity.ok().body("Dados alterados");
-
     }
+
     @GetMapping("/getAllUsers")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
