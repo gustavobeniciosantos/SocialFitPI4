@@ -5,6 +5,7 @@ import br.com.socialfit.social_fit.DTO.PublicationResponseDTO;
 import br.com.socialfit.social_fit.DTO.UserDTO;
 import br.com.socialfit.social_fit.entity.Publication;
 import br.com.socialfit.social_fit.entity.User;
+import br.com.socialfit.social_fit.repositories.UserRepository;
 import br.com.socialfit.social_fit.service.PublicationService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class PublicationController {
     @Autowired
     private PublicationService publicationService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/listPublications")
     public List<Publication> getAllPublications() {
         return publicationService.getAllPublications();
@@ -33,12 +37,9 @@ public class PublicationController {
         return publicationService.getPublicationById(id);
     }
     @PostMapping("/createPost")
-    public PublicationResponseDTO createPublication(@RequestBody Publication publication, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-
-        if (user == null) {
-            throw new IllegalStateException("Usuário não está logado");
-        }
+    public PublicationResponseDTO createPublication(@PathVariable UUID userId, @RequestBody Publication publication) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
 
         publication.setUser(user);
         publication.setUserName(user.getUsername());
@@ -52,7 +53,6 @@ public class PublicationController {
 
         return responseDTO;
     }
-
     @GetMapping("/friendsPublications/{id}")
     public ResponseEntity<List<PublicationDTO>> getAllFriendPublications(@PathVariable UUID id) {
         UserDTO userDTO = new UserDTO();
@@ -73,16 +73,13 @@ public class PublicationController {
         Collections.shuffle(friendPublications);
         return ResponseEntity.ok(friendPublications);
     }
-
-
-
-    @GetMapping("/user")
-    public ResponseEntity<List<PublicationDTO>> getUserPublications(HttpSession session){
-        User currentUser = (User) session.getAttribute("user");
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<PublicationDTO>> getUserPublications(@PathVariable UUID userId) {
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
         List<PublicationDTO> userPublications = publicationService.getAllUserPublications(currentUser);
         return ResponseEntity.ok(userPublications);
     }
-
     @DeleteMapping("/{id}")
     public void deletePublication(@PathVariable UUID id) {
         publicationService.deletePublication(id);

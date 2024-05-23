@@ -4,6 +4,7 @@ import br.com.socialfit.social_fit.entity.Publication;
 import br.com.socialfit.social_fit.entity.PublicationLike;
 import br.com.socialfit.social_fit.entity.User;
 import br.com.socialfit.social_fit.repositories.PublicationLikeRepository;
+import br.com.socialfit.social_fit.repositories.UserRepository;
 import br.com.socialfit.social_fit.service.PublicationLikeService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
@@ -19,27 +20,24 @@ public class PublicationLikeController {
     @Autowired
     private PublicationLikeService publicationLikeService;
     @Autowired
-    PublicationLikeRepository publicationRepository;
+    private PublicationLikeRepository publicationRepository;
     @Autowired
-    PublicationController publicationService;
+    private PublicationController publicationService;
+    @Autowired
+    private UserRepository userRepository;
 
-    @GetMapping("/getAllPublications")
+    @GetMapping("/getAllPublicationsLikes")
     public List<PublicationLike> getAllPublicationLikes() {
         return publicationLikeService.getAllPublicationLikes();
     }
-
     @GetMapping("/{id}")
     public Optional<PublicationLike> getPublicationLikeById(@PathVariable UUID id) {
         return publicationLikeService.getPublicationLikeById(id);
     }
-
-    @PostMapping("/likePublication/{publicationId}")
-    public ResponseEntity<Map<String, Object>> likePublication(@PathVariable UUID publicationId, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-
-        if (user == null) {
-            throw new IllegalStateException("Usuário não está logado");
-        }
+    @PostMapping("/likePublication/{userId}/{publicationId}")
+    public ResponseEntity<Map<String, Object>> likePublication(@PathVariable UUID userId, @PathVariable UUID publicationId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
 
         Optional<Publication> optionalPublication = publicationService.getPublicationById(publicationId);
         if (!optionalPublication.isPresent()) {
@@ -64,8 +62,6 @@ public class PublicationLikeController {
 
         return ResponseEntity.ok(response);
     }
-
-
     @DeleteMapping("/{id}")
     public void deletePublicationLike(@PathVariable UUID id) {
         publicationLikeService.deletePublicationLike(id);

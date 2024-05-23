@@ -6,14 +6,12 @@ import br.com.socialfit.social_fit.entity.User;
 import br.com.socialfit.social_fit.repositories.FriendRepository;
 import br.com.socialfit.social_fit.repositories.UserRepository;
 import br.com.socialfit.social_fit.service.FriendService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,28 +25,19 @@ public class FriendController {
     @Autowired
     FriendRepository friendRepository;
     @GetMapping("/getFriends")
-    public ResponseEntity<Object> getAllFriends(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não está logado");
-        }
+    public ResponseEntity<Object> getAllFriends(@PathVariable UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
 
         List<String> friendNames = friendService.getFriendNamesOfUser(user);
         return ResponseEntity.ok().body(friendNames);
     }
-
     @GetMapping("/{id}")
     public Optional<Friend> getFriendById(@PathVariable UUID id) {
         return friendService.getFriendById(id);
     }
-
-    @PostMapping("/addFriend")
-    public ResponseEntity<Object> addFriend(@RequestBody Map<String, String> requestBody, HttpSession session) {
-        String username = requestBody.get("username");
-
-        User currentUser = (User) session.getAttribute("user");
-
+    @PostMapping("/addFriend/{username}")
+    public ResponseEntity<Object> addFriend(@PathVariable String username, @AuthenticationPrincipal User currentUser) {
         User friendUser = userRepository.findByUsername(username);
 
         if (friendUser == null) {
@@ -65,12 +54,10 @@ public class FriendController {
         friend.setUser2(friendUser);
         friendRepository.save(friend);
 
-
         String message = String.format("Você adicionou um novo amigo", friendUser.getName(), friendUser.getId());
 
         return ResponseEntity.ok().body(message);
     }
-
     @DeleteMapping("/{id}")
     public void deleteFriend(@PathVariable UUID id) {
         friendService.deleteFriend(id);

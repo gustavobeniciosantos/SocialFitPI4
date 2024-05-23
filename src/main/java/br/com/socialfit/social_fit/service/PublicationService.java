@@ -33,7 +33,6 @@ public class PublicationService {
     public List<Publication> getAllPublications() {
         return publicationRepository.findAll();
     }
-
     public List<Publication> getAllFriendPublications(UserDTO userDTO){
         User currentUser = userService.findById(userDTO.getId()).orElse(null);
 
@@ -48,9 +47,6 @@ public class PublicationService {
 
         return allFriendPublications;
     }
-
-
-
     public Optional<Publication> getPublicationById(UUID id) {
         return publicationRepository.findById(id);
     }

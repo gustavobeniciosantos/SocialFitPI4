@@ -63,7 +63,6 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
-
     @GetMapping("/user/{username}")
     public ResponseEntity<Object> getUser(@PathVariable String username){
         Optional<User> userOptional = userService.getUserRepository(username);
@@ -102,7 +101,6 @@ public class UserController {
         userRepository.save(user);
         return ResponseEntity.ok().body("Dados alterados");
     }
-
     @GetMapping("/getAllUsers")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
