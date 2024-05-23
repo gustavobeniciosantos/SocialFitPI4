@@ -7,11 +7,12 @@ import br.com.socialfit.social_fit.repositories.FriendRepository;
 import br.com.socialfit.social_fit.repositories.UserRepository;
 import br.com.socialfit.social_fit.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,10 +37,12 @@ public class FriendController {
     public Optional<Friend> getFriendById(@PathVariable UUID id) {
         return friendService.getFriendById(id);
     }
-    @PostMapping("/addFriend/{username}")
-    public ResponseEntity<Object> addFriend(@PathVariable String username, @AuthenticationPrincipal User currentUser) {
+    @PostMapping("/addFriend/{currentUserId}")
+    public ResponseEntity<Object> addFriend(@PathVariable UUID currentUserId, @RequestBody Map<String, String> requestBody) {
+        User currentUser = userRepository.findById(currentUserId).orElse(null);
+        String username = requestBody.get("username");
         User friendUser = userRepository.findByUsername(username);
-
+        
         if (friendUser == null) {
             return ResponseEntity.notFound().build();
         }
@@ -58,6 +61,8 @@ public class FriendController {
 
         return ResponseEntity.ok().body(message);
     }
+
+
     @DeleteMapping("/{id}")
     public void deleteFriend(@PathVariable UUID id) {
         friendService.deleteFriend(id);

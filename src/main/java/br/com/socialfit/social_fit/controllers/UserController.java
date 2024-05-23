@@ -44,7 +44,7 @@ public class UserController {
         }
     }
     @PostMapping("/signin")
-    public ResponseEntity<UserDTO> login(@RequestBody User user, HttpSession session)  {
+    public ResponseEntity<UserDTO> login(@RequestBody User user)  {
         Optional<User> foundUser = userService.loginUser(user.getUsername(), user.getPassword());
 
         if (foundUser.isPresent()) {
@@ -56,7 +56,6 @@ public class UserController {
             userDTO.setName(currentUser.getName());
             userDTO.setUsername(currentUser.getUsername());
 
-            session.setAttribute("user", userDTO);
 
             return ResponseEntity.ok().body(userDTO);
         } else {
