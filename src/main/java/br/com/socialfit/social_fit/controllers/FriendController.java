@@ -42,7 +42,7 @@ public class FriendController {
         User currentUser = userRepository.findById(currentUserId).orElse(null);
         String username = requestBody.get("username");
         User friendUser = userRepository.findByUsername(username);
-        
+
         if (friendUser == null) {
             return ResponseEntity.notFound().build();
         }

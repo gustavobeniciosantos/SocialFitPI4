@@ -35,7 +35,7 @@ public class PublicationController {
     public Optional<Publication> getPublicationById(@PathVariable UUID id) {
         return publicationService.getPublicationById(id);
     }
-    @PostMapping("/createPost")
+    @PostMapping("/createPost/{userId}")
     public PublicationResponseDTO createPublication(@PathVariable UUID userId, @RequestBody Publication publication) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
